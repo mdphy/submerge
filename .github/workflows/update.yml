@@ -3,7 +3,7 @@ name: Update Subscription
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 * * * *"
+    - cron: "/15 * * * *"
 
 permissions:
   contents: write
