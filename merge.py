@@ -1,33 +1,27 @@
-import base64
-import requests
+import urllib.request
+
+urls = []
 
 with open("links.txt", "r", encoding="utf-8") as f:
-    urls = [i.strip() for i in f if i.strip()]
+    for line in f:
+        line = line.strip()
+        if line:
+            urls.append(line)
 
-configs = []
+configs = set()
 
 for url in urls:
     try:
-        text = requests.get(url, timeout=20).text.strip()
-
-        try:
-            text = base64.b64decode(text + "==").decode()
-        except:
-            pass
-
-        for line in text.splitlines():
-            line = line.strip()
-            if line:
-                configs.append(line)
-
+        with urllib.request.urlopen(url, timeout=20) as r:
+            text = r.read().decode("utf-8", errors="ignore")
+            for line in text.splitlines():
+                line = line.strip()
+                if line:
+                    configs.add(line)
     except Exception as e:
-        print(e)
+        print(f"Error: {url} -> {e}")
 
-configs = list(dict.fromkeys(configs))
+with open("sub.txt", "w", encoding="utf-8") as f:
+    f.write("\n".join(sorted(configs)))
 
-result = "\n".join(configs)
-
-encoded = base64.b64encode(result.encode()).decode()
-
-with open("sub.txt", "w") as f:
-    f.write(encoded)
+print(f"Saved {len(configs)} configs.")
